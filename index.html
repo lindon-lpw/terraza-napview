@@ -38,6 +38,9 @@
         </div>
       </div>
       <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+        <button onclick="openGalleryModal()" class="px-2.5 py-2 bg-teal-800 hover:bg-teal-900 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition shadow">
+          <i class="fa-solid fa-images text-amber-300"></i> Galería
+        </button>
         <button onclick="openMonthlyReport()" class="flex-1 sm:flex-none px-2.5 py-2 bg-amber-500 hover:bg-amber-600 text-teal-950 font-bold rounded-lg text-xs flex items-center justify-center gap-1.5 transition shadow">
           <i class="fa-solid fa-chart-line"></i> <span class="hidden xs:inline">Reporte</span> Mensual
         </button>
@@ -114,6 +117,87 @@
       </div>
     </section>
   </main>
+
+  <!-- Modal Galería Multimedia -->
+  <div id="galleryModal" class="fixed inset-0 bg-black/50 hidden backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full p-4 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-bold text-base sm:text-lg text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-images text-teal-600"></i> Galería de Fotos y Videos - Terraza Napview
+        </h3>
+        <button onclick="closeGalleryModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- Filtros de Galería y Botón Agregar -->
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-lg border">
+        <div class="flex gap-1.5 overflow-x-auto py-1">
+          <button onclick="filterGallery('ALL')" id="galFilterALL" class="px-3 py-1 text-xs font-bold rounded-full bg-teal-700 text-white">Todos</button>
+          <button onclick="filterGallery('Piscina')" id="galFilterPiscina" class="px-3 py-1 text-xs font-medium rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">Piscina</button>
+          <button onclick="filterGallery('Bar')" id="galFilterBar" class="px-3 py-1 text-xs font-medium rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">Bar & Bebidas</button>
+          <button onclick="filterGallery('Terraza')" id="galFilterTerraza" class="px-3 py-1 text-xs font-medium rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300">Terraza / Espacio</button>
+        </div>
+        <button onclick="toggleAddMediaForm()" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs flex items-center gap-1">
+          <i class="fa-solid fa-plus"></i> Agregar Foto/Video
+        </button>
+      </div>
+
+      <!-- Formulario para agregar nuevo elemento multimedia -->
+      <form id="addMediaForm" onsubmit="saveMediaItem(event)" class="hidden bg-slate-100 p-3.5 rounded-lg border space-y-3">
+        <h4 class="font-bold text-xs text-slate-800 uppercase tracking-wide">Nuevo Elemento Multimedia</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-700 mb-1">Título / Descripción</label>
+            <input type="text" id="mediaTitle" required placeholder="Ej: Piscina e iluminación nocturna" class="w-full border rounded p-1.5 text-xs" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-700 mb-1">Categoría</label>
+            <select id="mediaCategory" class="w-full border rounded p-1.5 text-xs">
+              <option value="Piscina">Piscina</option>
+              <option value="Bar">Bar & Bebidas</option>
+              <option value="Terraza">Terraza / Espacio</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-700 mb-1">Tipo de Archivo</label>
+            <select id="mediaType" onchange="toggleMediaInputType()" class="w-full border rounded p-1.5 text-xs">
+              <option value="image">Imagen / Foto (URL o Archivo)</option>
+              <option value="video">Video (URL o YouTube/MP4)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-700 mb-1">URL de la imagen/video o Cargar Archivo</label>
+            <input type="url" id="mediaUrl" placeholder="https://..." class="w-full border rounded p-1.5 text-xs mb-1" />
+            <input type="file" id="mediaFileInput" accept="image/*,video/*" onchange="handleFileUpload(event)" class="text-[10px] w-full" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="toggleAddMediaForm()" class="px-3 py-1 border rounded text-xs text-slate-600">Cancelar</button>
+          <button type="submit" class="px-3 py-1 bg-teal-600 text-white font-bold rounded text-xs">Guardar Multimedia</button>
+        </div>
+      </form>
+
+      <!-- Grilla de Fotos y Videos -->
+      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[450px] overflow-y-auto p-1"></div>
+
+      <div class="flex flex-wrap justify-between items-center gap-2 pt-3 border-t">
+        <button onclick="shareGalleryWhatsApp()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5">
+          <i class="fa-brands fa-whatsapp text-sm"></i> Compartir Galería por WhatsApp
+        </button>
+        <button onclick="closeGalleryModal()" class="px-4 py-1.5 border rounded-lg text-xs text-slate-600 hover:bg-slate-50">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Modal para Ver Imagen/Video Completo -->
+  <div id="lightboxModal" class="fixed inset-0 bg-black/80 hidden backdrop-blur-md flex items-center justify-center p-4 z-50" onclick="closeLightbox()">
+    <div class="relative max-w-3xl w-full text-center" onclick="event.stopPropagation()">
+      <button onclick="closeLightbox()" class="absolute -top-10 right-0 text-white hover:text-amber-400 text-2xl font-bold"><i class="fa-solid fa-xmark"></i></button>
+      <div id="lightboxContent" class="overflow-hidden rounded-xl bg-black"></div>
+      <p id="lightboxCaption" class="text-white text-xs mt-3 font-medium tracking-wide"></p>
+    </div>
+  </div>
 
   <!-- Modal Formulario Reserva / Cotización -->
   <div id="modal" class="fixed inset-0 bg-black/50 hidden backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50">
@@ -520,11 +604,20 @@
       { id: '2', clientName: 'Carlos Mendoza', eventType: 'Cumpleaños', location: 'Barrio 5 de noviembre / Terraza Napview', eventDate: '2026-10-20', guests: 20, pricePerPerson: 30000, discount: 50000, price: 550000, deposit: 200000, pendingBalance: 350000, status: 'Pendiente', attendees: [] }
     ];
 
+    let mediaItems = JSON.parse(localStorage.getItem('napview_media')) || [
+      { id: 'm1', title: 'Piscina y zona de asoleamiento', category: 'Piscina', type: 'image', url: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80' },
+      { id: 'm2', title: 'Bar de la Terraza y coctelería', category: 'Bar', type: 'image', url: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80' },
+      { id: 'm3', title: 'Vista panorámica de la Terraza', category: 'Terraza', type: 'image', url: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80' }
+    ];
+
     let currentDate = new Date();
     let selectedDateStr = null;
     let activeAttendanceEventId = null;
+    let activeGalleryCategory = 'ALL';
+    let uploadedBase64Media = null;
 
     function saveToStorage() { localStorage.setItem('napview_events', JSON.stringify(events)); }
+    function saveMediaToStorage() { localStorage.setItem('napview_media', JSON.stringify(mediaItems)); }
 
     function calculateFinancials() {
       const count = Number(document.getElementById('guests').value) || 0;
@@ -712,6 +805,137 @@
       }
     }
 
+    /* Módulo de Galería Multimedia */
+    function openGalleryModal() {
+      renderGallery();
+      document.getElementById('galleryModal').classList.remove('hidden');
+    }
+
+    function closeGalleryModal() {
+      document.getElementById('galleryModal').classList.add('hidden');
+    }
+
+    function filterGallery(category) {
+      activeGalleryCategory = category;
+      ['ALL', 'Piscina', 'Bar', 'Terraza'].forEach(cat => {
+        const btn = document.getElementById(`galFilter${cat}`);
+        if (btn) {
+          if (cat === category) {
+            btn.className = 'px-3 py-1 text-xs font-bold rounded-full bg-teal-700 text-white';
+          } else {
+            btn.className = 'px-3 py-1 text-xs font-medium rounded-full bg-slate-200 text-slate-700 hover:bg-slate-300';
+          }
+        }
+      });
+      renderGallery();
+    }
+
+    function renderGallery() {
+      const container = document.getElementById('galleryGrid');
+      const filtered = mediaItems.filter(item => activeGalleryCategory === 'ALL' || item.category === activeGalleryCategory);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-xs">No hay imágenes o videos registrados en esta categoría.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <div class="relative group rounded-lg overflow-hidden border bg-black/5 shadow-sm hover:shadow-md transition">
+          ${item.type === 'video' 
+            ? `<div class="relative aspect-video bg-black flex items-center justify-center cursor-pointer" onclick="openLightbox('${item.url}', 'video', '${item.title}')">
+                 <i class="fa-solid fa-circle-play text-4xl text-white opacity-80 group-hover:opacity-100 transition"></i>
+               </div>`
+            : `<img src="${item.url}" alt="${item.title}" class="w-full h-36 object-cover cursor-pointer hover:scale-105 transition duration-300" onclick="openLightbox('${item.url}', 'image', '${item.title}')" />`
+          }
+          <div class="p-2 bg-white flex justify-between items-center text-xs">
+            <div>
+              <span class="font-bold text-slate-800 block truncate max-w-[150px]">${item.title}</span>
+              <span class="text-[10px] text-teal-700 font-semibold">${item.category}</span>
+            </div>
+            <button onclick="deleteMediaItem('${item.id}')" class="text-slate-400 hover:text-red-600 p-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleAddMediaForm() {
+      const form = document.getElementById('addMediaForm');
+      form.classList.toggle('hidden');
+      uploadedBase64Media = null;
+    }
+
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        uploadedBase64Media = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveMediaItem(e) {
+      e.preventDefault();
+      const title = document.getElementById('mediaTitle').value;
+      const category = document.getElementById('mediaCategory').value;
+      const type = document.getElementById('mediaType').value;
+      const urlInput = document.getElementById('mediaUrl').value;
+
+      const finalUrl = uploadedBase64Media || urlInput;
+
+      if (!finalUrl) {
+        alert('Por favor ingresa una URL o selecciona un archivo.');
+        return;
+      }
+
+      mediaItems.push({
+        id: 'm' + Date.now(),
+        title,
+        category,
+        type,
+        url: finalUrl
+      });
+
+      saveMediaToStorage();
+      document.getElementById('addMediaForm').reset();
+      toggleAddMediaForm();
+      renderGallery();
+    }
+
+    function deleteMediaItem(id) {
+      if (confirm('¿Eliminar esta foto/video de la galería?')) {
+        mediaItems = mediaItems.filter(m => m.id !== id);
+        saveMediaToStorage();
+        renderGallery();
+      }
+    }
+
+    function openLightbox(url, type, title) {
+      const content = document.getElementById('lightboxContent');
+      const caption = document.getElementById('lightboxCaption');
+
+      if (type === 'video') {
+        content.innerHTML = `<video src="${url}" controls autoplay class="w-full max-h-[75vh]"></video>`;
+      } else {
+        content.innerHTML = `<img src="${url}" class="w-full max-h-[75vh] object-contain" />`;
+      }
+
+      caption.innerText = title;
+      document.getElementById('lightboxModal').classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxContent').innerHTML = '';
+      document.getElementById('lightboxModal').classList.add('hidden');
+    }
+
+    function shareGalleryWhatsApp() {
+      const locationUrl = window.location.href;
+      const text = `*TERRAZA NAPVIEW - GALERÍA DE FOTOS Y VIDEOS*\n\n¡Hola! Te invitamos a conocer nuestras instalaciones (Piscina, Bar y Terraza):\n\n📷 Consulta nuestras fotos y disponibilidad en el siguiente enlace:\n${locationUrl}\n\n¡Esperamos acompañarte en tu próximo evento!`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
     /* WhatsApp Integrations */
     function shareWhatsAppReceipt() {
       const client = document.getElementById('recClient').innerText;
@@ -763,7 +987,7 @@
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
 
-    /* Modal Views */
+    /* Modales de Vista */
     function generateQuoteFromForm() {
       showQuoteModal(
         document.getElementById('clientName').value || 'Cliente',
@@ -815,7 +1039,7 @@
     }
     function closePublicEventModal() { document.getElementById('publicEventModal').classList.add('hidden'); }
 
-    /* Control Aforo */
+    /* Control de Aforo */
     function openAttendance(id) {
       activeAttendanceEventId = id;
       const item = events.find(e => e.id === id);
